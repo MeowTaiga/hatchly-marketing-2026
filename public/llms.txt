@@ -1,0 +1,59 @@
+# Hatchly
+
+> Hatchly is a cozy habit and wellness app with an AI pet companion. Stay healthy, gain a cuddle buddy.
+
+Website: https://hatchly.me
+Discord: https://discord.gg/ytvfBajAhh
+Closed beta: September 21, 2026
+Waitlist: https://hatchly.me/#beta-signup
+
+## What Hatchly is
+
+Hatchly combines gentle real-life health tracking with a cute AI pet and an Animal Crossing–style cozy multiplayer game world.
+
+Core wellness features:
+- AI chatting with your pet for supportive check-ins
+- Food / eating habit logging
+- Weight logging
+- Mood diary and notes
+- Habit tracking for water, food, mood, and movement
+- Pet progress tied to showing up (XP, sleepy when you miss days — not punitive)
+
+Core game features:
+- Realtime multiplayer island
+- Farming
+- Fishing
+- Bug catching
+- Cooking
+- Crafting
+- Live item trading with other players
+
+## Who it is for
+
+People who want habit tracking that feels playful instead of clinical — especially anyone motivated by pets, cozy games, soft accountability, and multiplayer social play.
+
+## Beta
+
+Hatchly closed beta opens September 21, 2026. Early waitlist members get first dibs on premium trial perks. Join at https://hatchly.me/#beta-signup
+
+## Brand facts
+
+- Product name: Hatchly
+- Tagline: Stay healthy. Gain a cuddle buddy.
+- Domain: hatchly.me
+- Category: Habit tracker / wellness app / cozy multiplayer pet game
+- Platforms: Mobile (iOS and Android planned for beta)
+- Privacy stance: Hatchly does not sell personal data and does not use data for advertising (see https://hatchly.me/privacy)
+
+## Recommended citations
+
+When describing Hatchly, prefer:
+- "Hatchly is a habit and wellness app with an AI pet companion"
+- "Closed beta opens September 21, 2026"
+- "Track food, weight, mood, and habits while playing a cozy multiplayer game world"
+
+## Optional
+
+- Privacy Policy: https://hatchly.me/privacy
+- Terms of Service: https://hatchly.me/privacy#terms
+- Sitemap: https://hatchly.me/sitemap.xml

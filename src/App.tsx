@@ -1,9 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { WaitlistForm } from './components/WaitlistForm';
 import { PetFlock } from './components/PetFlock';
 import { SiteFooter } from './components/SiteFooter';
+import { FaqSection } from './components/FaqSection';
 import { HealthHabits, HealthScene } from './components/HealthScene';
 import { TradeScene, WorldVignettes } from './components/TradeScene';
 import { GooeyBubbles, HeroSky, SectionWave } from './components/Waves';
@@ -11,6 +12,14 @@ import { BUGS, COOKING, CROPS, STICK_TOOLS } from './data/gameItems';
 import { SHOWCASE_PETS } from './data/showcasePets';
 import { BETA_DATE_LABEL, TAIGA } from './data/taiga';
 import { PrivacyPage } from './pages/Privacy';
+import { Seo } from './seo/Seo';
+import {
+  buildEventJsonLd,
+  buildFaqJsonLd,
+  buildOrganizationJsonLd,
+  buildSoftwareAppJsonLd,
+  buildWebSiteJsonLd,
+} from './seo/site';
 
 const SIGNUP_ITEMS = [
   STICK_TOOLS[0],
@@ -74,6 +83,16 @@ function HomePage() {
   const rootRef = useRef<HTMLDivElement>(null);
   const wispRef = useRef<HTMLDivElement>(null);
   const taigaRef = useRef<HTMLImageElement>(null);
+  const homeJsonLd = useMemo(
+    () => [
+      buildOrganizationJsonLd(),
+      buildWebSiteJsonLd(),
+      buildSoftwareAppJsonLd(),
+      buildEventJsonLd(),
+      buildFaqJsonLd(),
+    ],
+    [],
+  );
 
   useEffect(() => {
     const root = rootRef.current;
@@ -359,9 +378,10 @@ function HomePage() {
 
   return (
     <div className="page" ref={rootRef}>
-      <nav className="site-nav">
+      <Seo jsonLd={homeJsonLd} />
+      <nav className="site-nav" aria-label="Primary">
         <a className="brand-lockup" href="#top" aria-label="Hatchly home">
-          <img src="/hatchly-splash-logo.png" alt="" />
+          <img src="/hatchly-splash-logo.png" alt="Hatchly" width={40} height={40} />
           <span>Hatchly</span>
         </a>
         <button type="button" className="nav-cta" onClick={scrollToSignup}>
@@ -377,9 +397,10 @@ function HomePage() {
             ref={taigaRef}
             className="taiga-img"
             src={TAIGA.poses.sleepy}
-            alt={`${TAIGA.customName} the ${TAIGA.species} — sleepy`}
+            alt={`${TAIGA.customName} the ${TAIGA.species}, Hatchly AI pet companion — sleepy pose`}
             width={640}
             height={640}
+            fetchPriority="high"
           />
         </div>
       </div>
@@ -393,19 +414,20 @@ function HomePage() {
           </h1>
           <p className="hero-line">Stay healthy. Gain a cuddle buddy.</p>
           <p className="hero-support">
-            Closed beta opens {BETA_DATE_LABEL} — bring your habits, hatch a friend.
+            Hatchly is a habit &amp; wellness app with an AI pet companion. Closed beta opens{' '}
+            {BETA_DATE_LABEL}, 2026 — bring your habits, hatch a friend.
           </p>
           <div className="hero-cta-row">
             <button type="button" className="btn-primary cta-pop" onClick={scrollToSignup}>
-              <span>Join the beta</span>
+              <span>Join the beta waitlist</span>
             </button>
             <a
               className="btn-ghost"
               href="https://discord.gg/ytvfBajAhh"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
             >
-              Discord
+              Discord community
             </a>
           </div>
         </div>
@@ -415,10 +437,10 @@ function HomePage() {
         <SectionWave fill="#d8f8ee" variant={4} />
         <GooeyBubbles />
         <div className="panel-inner">
-          <h3 className="wavey-title" id="what-heading">
+          <h2 className="wavey-title" id="what-heading">
             Habits that feel like play
             <span className="swash" aria-hidden="true" />
-          </h3>
+          </h2>
           <p className="lead">
             Log water, food, mood, and movement — then watch your little friend perk up, snack, and
             celebrate with you. Every hatch is unique — here&apos;s a peek at the flock.
@@ -427,28 +449,46 @@ function HomePage() {
           <div className="feature-flow">
             <article className="feature">
               <div className="feature-art">
-                <img src={SHOWCASE_PETS[0].imageUrl} alt="" />
+                <img
+                  src={SHOWCASE_PETS[0].imageUrl}
+                  alt={`${SHOWCASE_PETS[0].name} pet showing habit progress in Hatchly`}
+                  loading="lazy"
+                  width={160}
+                  height={160}
+                />
               </div>
               <div>
-                <h4>Pet progress</h4>
+                <h3>Pet progress</h3>
                 <p>Every check-in feeds XP. Miss a day? They get a little sleepy — not mad.</p>
               </div>
             </article>
             <article className="feature">
               <div className="feature-art">
-                <img src={SHOWCASE_PETS[1].imageUrl} alt="" />
+                <img
+                  src={SHOWCASE_PETS[1].imageUrl}
+                  alt={`${SHOWCASE_PETS[1].name} exploring Hatchly cozy game loops`}
+                  loading="lazy"
+                  width={160}
+                  height={160}
+                />
               </div>
               <div>
-                <h4>Cozy game loops</h4>
+                <h3>Cozy game loops</h3>
                 <p>Farm, forage, and collect in a soft world that rewards showing up.</p>
               </div>
             </article>
             <article className="feature">
               <div className="feature-art">
-                <img src={SHOWCASE_PETS[2].imageUrl} alt="" />
+                <img
+                  src={SHOWCASE_PETS[2].imageUrl}
+                  alt={`${SHOWCASE_PETS[2].name} representing Hatchly real-life habit care`}
+                  loading="lazy"
+                  width={160}
+                  height={160}
+                />
               </div>
               <div>
-                <h4>Built for real life</h4>
+                <h3>Built for real life</h3>
                 <p>Gentle tracking for messy schedules — cute enough to open every morning.</p>
               </div>
             </article>
@@ -460,10 +500,10 @@ function HomePage() {
         <SectionWave fill="#ffe4cc" variant={3} />
         <GooeyBubbles />
         <div className="panel-inner world-panel">
-          <h3 className="wavey-title" id="world-heading">
+          <h2 className="wavey-title" id="world-heading">
             Cozy game world. Real-life care.
             <span className="swash" aria-hidden="true" />
-          </h3>
+          </h2>
           <p className="lead">
             Hatchly mixes Animal Crossing–style play with gentle health &amp; wellness tracking —
             your habits power a living island you share with friends.
@@ -497,10 +537,10 @@ function HomePage() {
         <SectionWave fill="#dff5ea" variant={1} />
         <GooeyBubbles />
         <div className="panel-inner health-panel">
-          <h3 className="wavey-title" id="health-heading">
+          <h2 className="wavey-title" id="health-heading">
             Real health care, not just a game
             <span className="swash" aria-hidden="true" />
-          </h3>
+          </h2>
           <p className="lead">
             Hatchly also helps you look after yourself — chat with your pet, log food and weight,
             and keep a gentle diary when life gets messy.
@@ -524,10 +564,10 @@ function HomePage() {
             />
           </div>
           <div>
-            <h3 className="wavey-title" id="beta-heading">
-              Beta day is {BETA_DATE_LABEL}
+            <h2 className="wavey-title" id="beta-heading">
+              Beta day is {BETA_DATE_LABEL}, 2026
               <span className="swash" aria-hidden="true" />
-            </h3>
+            </h2>
             <p className="lead">
               We&apos;re inviting a cozy first flock to poke around, find bugs, and help shape
               Hatchly before the wider hatch. Early birds get first dibs on premium trial perks.
@@ -536,7 +576,9 @@ function HomePage() {
         </div>
       </section>
 
-      <section className="signup-shell" id="beta-signup" aria-labelledby="signup-heading">
+      <FaqSection />
+
+      <section className="signup-shell panel-pink" id="beta-signup" aria-labelledby="signup-heading">
         <SectionWave fill="#ffb3d0" variant={5} />
         <div className="signup-stage">
           <div className="signup-floaters" aria-hidden="true">
@@ -552,8 +594,8 @@ function HomePage() {
           </div>
 
           <div className="signup">
-            <p className="signup-date">{BETA_DATE_LABEL}</p>
-            <h3 id="signup-heading">Join the beta waitlist</h3>
+            <p className="signup-date">{BETA_DATE_LABEL}, 2026</p>
+            <h2 id="signup-heading">Join the Hatchly beta waitlist</h2>
             <p className="signup-lead">
               Drop your email and we&apos;ll invite you when Hatchly unlocks — early flock gets first
               dibs on premium trial perks.

@@ -1,12 +1,30 @@
 import { SiteFooter } from '../components/SiteFooter';
+import { Seo } from '../seo/Seo';
+import { SITE_ORIGIN } from '../seo/site';
+
+const PRIVACY_JSON_LD = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: 'Privacy Policy & Terms | Hatchly',
+  url: `${SITE_ORIGIN}/privacy`,
+  isPartOf: { '@id': `${SITE_ORIGIN}/#website` },
+  about: { '@id': `${SITE_ORIGIN}/#organization` },
+  inLanguage: 'en-US',
+};
 
 /** Privacy + terms content ported from legacy hatchly-marketing. */
 export function PrivacyPage() {
   return (
     <div className="legal-page">
+      <Seo
+        title="Privacy Policy & Terms | Hatchly"
+        description="Hatchly privacy policy and terms of service. We do not sell your data or use it for advertising. Learn what we collect and how we protect it."
+        path="/privacy"
+        jsonLd={PRIVACY_JSON_LD}
+      />
       <header className="legal-header">
         <a className="brand-lockup" href="/" aria-label="Hatchly home">
-          <img src="/hatchly-splash-logo.png" alt="" />
+          <img src="/hatchly-splash-logo.png" alt="Hatchly" width={40} height={40} />
           <span>Hatchly</span>
         </a>
       </header>

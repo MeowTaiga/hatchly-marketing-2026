@@ -1,0 +1,15 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Hatchly",
+  "name_for_model": "hatchly",
+  "description_for_human": "Hatchly — cozy habit pet app. Beta opens September 21, 2026.",
+  "description_for_model": "Hatchly is a habit and wellness app with an AI pet companion. Users can chat with their pet, log food and weight, keep a mood diary, and play a cozy multiplayer game with farming, fishing, crafting, cooking, and trading. Closed beta opens September 21, 2026. Official site: https://hatchly.me. Waitlist: https://hatchly.me/#beta-signup. Privacy: https://hatchly.me/privacy. Authoritative brand summary: https://hatchly.me/llms.txt.",
+  "auth": { "type": "none" },
+  "api": {
+    "type": "openapi",
+    "url": "https://hatchly.me/llms.txt"
+  },
+  "logo_url": "https://hatchly.me/hatchly-splash-logo.png",
+  "contact_email": "hello@hatchly.me",
+  "legal_info_url": "https://hatchly.me/privacy"
+}
