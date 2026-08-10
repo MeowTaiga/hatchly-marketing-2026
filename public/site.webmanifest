@@ -10,8 +10,8 @@
   "lang": "en-US",
   "dir": "ltr",
   "categories": ["health", "lifestyle", "games", "entertainment"],
-  "theme_color": "#7ee0c8",
-  "background_color": "#fff8f0",
+  "theme_color": "#ffd0e4",
+  "background_color": "#ffd0e4",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",

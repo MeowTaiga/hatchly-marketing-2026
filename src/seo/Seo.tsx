@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import {
   DEFAULT_DESCRIPTION,
   DEFAULT_OG_IMAGE,
+  DEFAULT_OG_IMAGE_ALT,
   DEFAULT_TITLE,
   SITE_NAME,
   SITE_ORIGIN,
@@ -70,7 +71,7 @@ export function Seo({
     upsertMeta('name', 'googlebot', noindex ? 'noindex, nofollow' : 'index, follow');
     upsertMeta('name', 'application-name', SITE_NAME);
     upsertMeta('name', 'apple-mobile-web-app-title', SITE_NAME);
-    upsertMeta('name', 'theme-color', '#7ee0c8');
+    upsertMeta('name', 'theme-color', '#ffd0e4');
 
     upsertMeta('property', 'og:type', type);
     upsertMeta('property', 'og:site_name', SITE_NAME);
@@ -79,13 +80,18 @@ export function Seo({
     upsertMeta('property', 'og:description', description);
     upsertMeta('property', 'og:url', url);
     upsertMeta('property', 'og:image', img);
-    upsertMeta('property', 'og:image:alt', `${SITE_NAME} — ${description.slice(0, 110)}`);
+    upsertMeta('property', 'og:image:secure_url', img);
+    upsertMeta('property', 'og:image:type', 'image/png');
+    upsertMeta('property', 'og:image:width', '1200');
+    upsertMeta('property', 'og:image:height', '630');
+    upsertMeta('property', 'og:image:alt', DEFAULT_OG_IMAGE_ALT);
 
     upsertMeta('name', 'twitter:card', 'summary_large_image');
     upsertMeta('name', 'twitter:site', TWITTER_HANDLE);
     upsertMeta('name', 'twitter:title', title);
     upsertMeta('name', 'twitter:description', description);
     upsertMeta('name', 'twitter:image', img);
+    upsertMeta('name', 'twitter:image:alt', DEFAULT_OG_IMAGE_ALT);
 
     upsertLink('canonical', url);
 

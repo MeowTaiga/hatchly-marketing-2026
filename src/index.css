@@ -1,6 +1,8 @@
 :root {
   --pink: #ff6b9d;
   --pink-deep: #e8457a;
+  /* Matches hero-sky gradient top — used for iOS/Android status bar chrome */
+  --hero-pink-top: #ffd0e4;
   --mint: #7ee0c8;
   --mint-deep: #3db89a;
   --sky: #9ed8ff;
@@ -23,6 +25,8 @@
 
 html {
   scroll-behavior: auto;
+  /* Overscroll / status-bar letterboxing matches hero pink */
+  background: var(--hero-pink-top);
 }
 
 body {
@@ -241,7 +245,7 @@ a {
   z-index: 0;
   background: linear-gradient(
     165deg,
-    #ffd0e4 0%,
+    var(--hero-pink-top) 0%,
     #ffc4d8 22%,
     #b8e4ff 58%,
     #9fd9c8 82%,
@@ -353,6 +357,17 @@ a {
   margin: 0;
   pointer-events: none;
   will-change: transform, width;
+}
+
+@media (max-width: 859px) {
+  .wisp {
+    z-index: 12;
+    width: clamp(120px, 42vmin, 280px);
+  }
+
+  .hero-content {
+    padding-top: 0.25rem;
+  }
 }
 
 .wisp-bob {

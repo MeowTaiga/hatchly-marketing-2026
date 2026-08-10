@@ -6,6 +6,8 @@ Website: https://hatchly.me
 Discord: https://discord.gg/ytvfBajAhh
 Closed beta: September 21, 2026
 Waitlist: https://hatchly.me/#beta-signup
+Share image: https://hatchly.me/og-image.png (Wisp, sleepy AI pet companion)
+Square image: https://hatchly.me/og-image-square.png
 
 ## What Hatchly is
 

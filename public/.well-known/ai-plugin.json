@@ -9,7 +9,7 @@
     "type": "openapi",
     "url": "https://hatchly.me/llms.txt"
   },
-  "logo_url": "https://hatchly.me/hatchly-splash-logo.png",
+  "logo_url": "https://hatchly.me/og-image.png",
   "contact_email": "hello@hatchly.me",
   "legal_info_url": "https://hatchly.me/privacy"
 }

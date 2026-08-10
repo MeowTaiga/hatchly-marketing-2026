@@ -39,23 +39,28 @@ const POSE_ORDER = [
   TAIGA.poses.wow,
 ] as const;
 
+function isMobileLayout() {
+  return window.innerWidth < 860;
+}
+
 function heroSize() {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
-  const widthFactor = vw >= 1100 ? 0.55 : vw >= 860 ? 0.58 : vw >= 600 ? 0.68 : 0.7;
-  const heightFactor = vw >= 860 ? 0.7 : 0.42;
+  const widthFactor = vw >= 1100 ? 0.55 : vw >= 860 ? 0.58 : vw >= 600 ? 0.5 : 0.46;
+  const heightFactor = vw >= 860 ? 0.7 : 0.28;
   return Math.min(vw * widthFactor, vh * heightFactor, 720);
 }
 
 function sideSize() {
   const vw = window.innerWidth;
-  return Math.min(Math.max(vw * (vw >= 860 ? 0.12 : 0.22), 72), 132);
+  if (vw < 860) return Math.min(Math.max(vw * 0.14, 56), 72);
+  return Math.min(Math.max(vw * 0.12, 72), 132);
 }
 
 function heroPos(size: number) {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
-  const topPad = vw >= 860 ? Math.max(48, vh * 0.05) : Math.max(56, vh * 0.09);
+  const topPad = vw >= 860 ? Math.max(48, vh * 0.05) : Math.max(44, vh * 0.06);
   return {
     x: (vw - size) / 2,
     y: topPad,
@@ -64,10 +69,10 @@ function heroPos(size: number) {
 
 function sidePos(size: number) {
   const vw = window.innerWidth;
-  const edge = vw >= 860 ? vw * 0.03 : 12;
+  const edge = vw >= 860 ? vw * 0.03 : 8;
   return {
     x: vw - size - edge,
-    y: window.innerHeight * (vw >= 860 ? 0.26 : 0.22),
+    y: window.innerHeight * (vw >= 860 ? 0.26 : 0.14),
   };
 }
 
@@ -206,13 +211,18 @@ function HomePage() {
         if (taigaRef.current) taigaRef.current.src = src;
       };
 
+      const mobile = isMobileLayout();
+      const shrinkDur = mobile ? 0.1 : 0.22;
+      const travelDur = 1 - shrinkDur;
+
       gsap
         .timeline({
           scrollTrigger: {
             trigger: root,
             start: 'top top',
-            end: 'bottom bottom',
-            scrub: 1.05,
+            // Mobile: finish shrink/travel over ~2.2 viewports so Wisp gets small fast
+            end: () => (isMobileLayout() ? `+=${window.innerHeight * 2.2}` : 'bottom bottom'),
+            scrub: mobile ? 0.4 : 1.05,
             invalidateOnRefresh: true,
             onRefresh: () => {
               if (window.scrollY < 8) placeHero();
@@ -240,21 +250,21 @@ function HomePage() {
             y: () => sidePos(sideSize()).y,
             rotate: -6,
             ease: 'none',
-            duration: 0.22,
+            duration: shrinkDur,
             immediateRender: false,
           },
           0,
         )
         .to(
           '.taiga-glow, .taiga-shadow',
-          { opacity: 0, scale: 0.6, duration: 0.18, ease: 'none' },
+          { opacity: 0, scale: 0.6, duration: shrinkDur * 0.85, ease: 'none' },
           0,
         )
         .to(
           '.taiga-img',
           {
             filter: 'drop-shadow(0 10px 12px rgba(58, 36, 72, 0.16))',
-            duration: 0.22,
+            duration: shrinkDur,
             ease: 'none',
           },
           0,
@@ -262,13 +272,13 @@ function HomePage() {
         .to(
           wisp,
           {
-            y: () => window.innerHeight * (window.innerWidth >= 860 ? 0.62 : 0.7),
-            x: () => sidePos(sideSize()).x - (window.innerWidth >= 860 ? 12 : 4),
+            y: () => window.innerHeight * (isMobileLayout() ? 0.78 : 0.62),
+            x: () => sidePos(sideSize()).x - (isMobileLayout() ? 2 : 12),
             rotate: 10,
             ease: 'none',
-            duration: 0.78,
+            duration: travelDur,
           },
-          0.22,
+          shrinkDur,
         );
 
       gsap.utils.toArray<HTMLElement>('.feature').forEach((el, i) => {

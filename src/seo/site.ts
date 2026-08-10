@@ -8,7 +8,10 @@ export const DEFAULT_TITLE = 'Hatchly — Habit Pet App | Beta Opens September 2
 export const DEFAULT_DESCRIPTION =
   'Hatchly is a cozy habit and wellness app with an AI pet companion. Track food, weight, mood, and habits while farming, fishing, crafting, and playing with friends. Closed beta opens September 21, 2026 — join the waitlist.';
 
+/** Wisp sleepy pose share card (1200×630) for Open Graph / Twitter / AI previews. */
 export const DEFAULT_OG_IMAGE = `${SITE_ORIGIN}/og-image.png`;
+export const DEFAULT_OG_IMAGE_ALT =
+  'Wisp, Hatchly’s sleepy AI pet companion — Stay healthy. Gain a cuddle buddy.';
 export const TWITTER_HANDLE = '@hatchlyapp';
 
 export const SAME_AS = [
