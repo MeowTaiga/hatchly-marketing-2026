@@ -30,6 +30,8 @@ const SIGNUP_ITEMS = [
 ] as const;
 
 gsap.registerPlugin(ScrollTrigger);
+// iOS URL-bar show/hide changes vh and was refreshing scrub mid-scroll → flicker/stuck
+ScrollTrigger.config({ ignoreMobileResize: true });
 
 const POSE_ORDER = [
   TAIGA.poses.sleepy,
@@ -105,11 +107,26 @@ function HomePage() {
     if (!root || !wisp) return;
 
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const mobile = isMobileLayout();
+
+    // Preload pose swaps so mobile scrub doesn't flash empty frames
+    POSE_ORDER.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
 
     const placeHero = () => {
       const size = heroSize();
       const pos = heroPos(size);
-      gsap.set(wisp, { width: size, x: pos.x, y: pos.y, rotate: 0, scale: 1, opacity: 1 });
+      gsap.set(wisp, {
+        width: size,
+        x: pos.x,
+        y: pos.y,
+        rotate: 0,
+        scale: 1,
+        opacity: 1,
+        force3D: true,
+      });
     };
 
     if (prefersReduced) {
@@ -123,16 +140,16 @@ function HomePage() {
       gsap.from('.hero-content > *', {
         y: 40,
         opacity: 0,
-        duration: 0.95,
-        stagger: 0.1,
+        duration: mobile ? 0.55 : 0.95,
+        stagger: mobile ? 0.06 : 0.1,
         ease: 'back.out(1.7)',
       });
 
       gsap.from('.nav-cta, .cta-pop', {
         scale: 0.6,
         opacity: 0,
-        duration: 0.9,
-        delay: 0.35,
+        duration: mobile ? 0.55 : 0.9,
+        delay: 0.2,
         ease: 'elastic.out(1, 0.45)',
         clearProps: 'transform,opacity',
       });
@@ -140,29 +157,31 @@ function HomePage() {
       gsap.from(wisp, {
         scale: 0.88,
         opacity: 0,
-        duration: 1.05,
+        duration: mobile ? 0.65 : 1.05,
         ease: 'elastic.out(1, 0.6)',
       });
 
+      // Lighter idle motion on mobile — competing with scrub was causing flicker
       gsap.to('.wisp-bob', {
-        y: -14,
-        duration: 2.35,
+        y: mobile ? -6 : -14,
+        duration: mobile ? 3.2 : 2.35,
         repeat: -1,
         yoyo: true,
         ease: 'sine.inOut',
         delay: 1.1,
       });
 
-      // Scale only (no opacity) so scroll fade isn't overwritten by the idle loop
-      gsap.to('.taiga-shadow', {
-        scaleX: 0.84,
-        duration: 2.35,
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
-        delay: 1.1,
-        transformOrigin: '50% 50%',
-      });
+      if (!mobile) {
+        gsap.to('.taiga-shadow', {
+          scaleX: 0.84,
+          duration: 2.35,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+          delay: 1.1,
+          transformOrigin: '50% 50%',
+        });
+      }
 
       // Slow seamless drift — alternate directions + staggered speeds
       gsap.utils.toArray<HTMLElement>('[data-wave-track]').forEach((track, i) => {
@@ -179,30 +198,31 @@ function HomePage() {
         );
       });
 
-      // Bob hero waves only — section seams must stay locked to panel edges
-      gsap.utils.toArray<HTMLElement>('.hero-waves [data-wave-layer]').forEach((layer, i) => {
-        gsap.to(layer, {
-          y: i % 2 === 0 ? 10 : -8,
-          duration: 4.5 + i * 0.7,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut',
-          delay: i * 0.35,
+      // Bob hero waves only on desktop — vertical motion + scrub fights iOS scroll
+      if (!mobile) {
+        gsap.utils.toArray<HTMLElement>('.hero-waves [data-wave-layer]').forEach((layer, i) => {
+          gsap.to(layer, {
+            y: i % 2 === 0 ? 10 : -8,
+            duration: 4.5 + i * 0.7,
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut',
+            delay: i * 0.35,
+          });
         });
-      });
 
-      // Soft float on mid-page gooey bubbles
-      gsap.utils.toArray<HTMLElement>('[data-goo]').forEach((goo, i) => {
-        gsap.to(goo, {
-          x: i % 2 === 0 ? 18 : -22,
-          y: i % 3 === 0 ? 14 : -16,
-          duration: 5 + i * 1.1,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut',
-          delay: i * 0.25,
+        gsap.utils.toArray<HTMLElement>('[data-goo]').forEach((goo, i) => {
+          gsap.to(goo, {
+            x: i % 2 === 0 ? 18 : -22,
+            y: i % 3 === 0 ? 14 : -16,
+            duration: 5 + i * 1.1,
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut',
+            delay: i * 0.25,
+          });
         });
-      });
+      }
 
       let lastPose: string = POSE_ORDER[0];
       const setPose = (src: string) => {
@@ -211,8 +231,8 @@ function HomePage() {
         if (taigaRef.current) taigaRef.current.src = src;
       };
 
-      const mobile = isMobileLayout();
-      const shrinkDur = mobile ? 0.1 : 0.22;
+      // Shrink early, but travel + poses run across the FULL page (not ~2 viewports)
+      const shrinkDur = mobile ? 0.14 : 0.22;
       const travelDur = 1 - shrinkDur;
 
       gsap
@@ -220,10 +240,11 @@ function HomePage() {
           scrollTrigger: {
             trigger: root,
             start: 'top top',
-            // Mobile: finish shrink/travel over ~2.2 viewports so Wisp gets small fast
-            end: () => (isMobileLayout() ? `+=${window.innerHeight * 2.2}` : 'bottom bottom'),
-            scrub: mobile ? 0.4 : 1.05,
-            invalidateOnRefresh: true,
+            end: 'bottom bottom',
+            // true = 1:1 with scroll (no lag fighting iOS momentum)
+            scrub: mobile ? true : 1.05,
+            invalidateOnRefresh: !mobile,
+            fastScrollEnd: true,
             onRefresh: () => {
               if (window.scrollY < 8) placeHero();
             },
@@ -252,6 +273,7 @@ function HomePage() {
             ease: 'none',
             duration: shrinkDur,
             immediateRender: false,
+            force3D: true,
           },
           0,
         )
@@ -263,7 +285,9 @@ function HomePage() {
         .to(
           '.taiga-img',
           {
-            filter: 'drop-shadow(0 10px 12px rgba(58, 36, 72, 0.16))',
+            filter: mobile
+              ? 'drop-shadow(0 8px 10px rgba(58, 36, 72, 0.14))'
+              : 'drop-shadow(0 10px 12px rgba(58, 36, 72, 0.16))',
             duration: shrinkDur,
             ease: 'none',
           },
@@ -277,75 +301,77 @@ function HomePage() {
             rotate: 10,
             ease: 'none',
             duration: travelDur,
+            force3D: true,
           },
           shrinkDur,
         );
 
       gsap.utils.toArray<HTMLElement>('.feature').forEach((el, i) => {
         gsap.from(el, {
-          scrollTrigger: { trigger: el, start: 'top 86%' },
-          y: 48,
-          x: i % 2 === 0 ? -28 : 28,
+          scrollTrigger: { trigger: el, start: 'top 86%', once: true },
+          y: mobile ? 28 : 48,
+          x: mobile ? 0 : i % 2 === 0 ? -28 : 28,
           opacity: 0,
-          duration: 0.75,
+          duration: mobile ? 0.5 : 0.75,
           ease: 'back.out(1.8)',
         });
       });
 
       gsap.utils.toArray<HTMLElement>('[data-flock-pet]').forEach((el, i) => {
         gsap.from(el, {
-          scrollTrigger: { trigger: el, start: 'top 90%' },
-          y: 36,
-          scale: 0.8,
+          scrollTrigger: { trigger: el, start: 'top 90%', once: true },
+          y: mobile ? 20 : 36,
+          scale: mobile ? 0.92 : 0.8,
           opacity: 0,
-          duration: 0.7,
-          delay: (i % 5) * 0.06,
+          duration: mobile ? 0.45 : 0.7,
+          delay: mobile ? 0 : (i % 5) * 0.06,
           ease: 'back.out(1.7)',
         });
       });
 
       gsap.utils.toArray<HTMLElement>('[data-world-block]').forEach((el, i) => {
         gsap.from(el, {
-          scrollTrigger: { trigger: el, start: 'top 88%' },
-          y: 40,
+          scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+          y: mobile ? 22 : 40,
           opacity: 0,
-          duration: 0.8,
-          delay: i * 0.08,
+          duration: mobile ? 0.5 : 0.8,
+          delay: mobile ? 0 : i * 0.08,
           ease: 'back.out(1.6)',
         });
       });
 
       gsap.utils.toArray<HTMLElement>('[data-health-block]').forEach((el, i) => {
         gsap.from(el, {
-          scrollTrigger: { trigger: el, start: 'top 88%' },
-          y: 36,
+          scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+          y: mobile ? 22 : 36,
           opacity: 0,
-          duration: 0.75,
-          delay: i * 0.08,
+          duration: mobile ? 0.5 : 0.75,
+          delay: mobile ? 0 : i * 0.08,
           ease: 'back.out(1.55)',
         });
       });
 
       gsap.from('.story-visual', {
-        scrollTrigger: { trigger: '.story-band', start: 'top 75%' },
-        y: 56,
-        rotate: -8,
-        scale: 0.86,
+        scrollTrigger: { trigger: '.story-band', start: 'top 75%', once: true },
+        y: mobile ? 28 : 56,
+        rotate: mobile ? 0 : -8,
+        scale: mobile ? 0.94 : 0.86,
         opacity: 0,
-        duration: 1,
+        duration: mobile ? 0.55 : 1,
         ease: 'back.out(1.85)',
       });
 
       gsap.from('.signup', {
-        scrollTrigger: { trigger: '.signup', start: 'top 82%' },
-        y: 46,
-        scale: 0.95,
+        scrollTrigger: { trigger: '.signup', start: 'top 82%', once: true },
+        y: mobile ? 24 : 46,
+        scale: mobile ? 0.98 : 0.95,
         opacity: 0,
-        duration: 0.85,
+        duration: mobile ? 0.5 : 0.85,
         ease: 'back.out(1.65)',
       });
 
       gsap.utils.toArray<HTMLElement>('[data-signup-floater]').forEach((el, i) => {
+        if (mobile) return;
         gsap.to(el, {
           y: i % 2 === 0 ? -14 : 12,
           rotate: i % 2 === 0 ? 6 : -8,
@@ -357,17 +383,19 @@ function HomePage() {
         });
       });
 
-      gsap.to('.story-pet', {
-        scrollTrigger: {
-          trigger: '.story-band',
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: true,
-        },
-        y: -48,
-        rotate: 10,
-        ease: 'none',
-      });
+      if (!mobile) {
+        gsap.to('.story-pet', {
+          scrollTrigger: {
+            trigger: '.story-band',
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: true,
+          },
+          y: -48,
+          rotate: 10,
+          ease: 'none',
+        });
+      }
 
     }, root);
 
@@ -389,6 +417,7 @@ function HomePage() {
   return (
     <div className="page" ref={rootRef}>
       <Seo jsonLd={homeJsonLd} />
+      <div className="status-bar-fill" aria-hidden="true" />
       <nav className="site-nav" aria-label="Primary">
         <a className="brand-lockup" href="#top" aria-label="Hatchly home">
           <img src="/hatchly-splash-logo.png" alt="Hatchly" width={40} height={40} />

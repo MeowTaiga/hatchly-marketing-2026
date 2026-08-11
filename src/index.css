@@ -25,8 +25,8 @@
 
 html {
   scroll-behavior: auto;
-  /* Overscroll / status-bar letterboxing matches hero pink */
-  background: var(--hero-pink-top);
+  /* iOS Safari paints status-bar / overscroll from this */
+  background-color: var(--hero-pink-top);
 }
 
 body {
@@ -34,7 +34,8 @@ body {
   min-height: 100%;
   font-family: var(--font-body);
   color: var(--ink);
-  background: var(--butter);
+  /* Keep top chrome pink; page content sits on butter panels below */
+  background-color: var(--hero-pink-top);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
@@ -54,7 +55,9 @@ a {
 }
 
 #root {
-  min-height: 100vh;
+  min-height: 100%;
+  min-height: 100dvh;
+  background-color: var(--hero-pink-top);
 }
 
 .page {
@@ -63,6 +66,19 @@ a {
   width: 100%;
   max-width: 100%;
   overflow-x: clip;
+  background-color: var(--hero-pink-top);
+}
+
+/* Solid pink under the notch / Dynamic Island / status bar */
+.status-bar-fill {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--hero-pink-top);
+  pointer-events: none;
 }
 
 .site-nav {
@@ -74,8 +90,14 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.25rem;
+  padding: calc(0.85rem + env(safe-area-inset-top, 0px)) 1.25rem 1rem;
   pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    var(--hero-pink-top) 0%,
+    var(--hero-pink-top) calc(env(safe-area-inset-top, 0px) + 0.35rem),
+    rgba(255, 208, 228, 0) 100%
+  );
 }
 
 .site-nav > * {
@@ -235,8 +257,9 @@ a {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 5.5rem 1.25rem max(5.5rem, 22vh);
+  padding: calc(5.5rem + env(safe-area-inset-top, 0px)) 1.25rem max(5.5rem, 22vh);
   overflow: hidden;
+  background-color: var(--hero-pink-top);
 }
 
 .hero-sky {
