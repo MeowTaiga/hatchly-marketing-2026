@@ -138,6 +138,18 @@ export const COOKING = {
       imageUrl:
         'https://images.hatchly.me/game-items/tomato_soup/b8ec5143-cb34-4c82-8d47-e007d0ff9a39.png',
     },
+    {
+      id: 'strawberry_pie',
+      label: 'Strawberry Pie',
+      imageUrl:
+        'https://images.hatchly.me/game-items/strawberry_pie/c7ca8379-f2a2-4ad2-a62f-dc2aba5050f9.png',
+    },
+    {
+      id: 'garden_salad',
+      label: 'Garden Salad',
+      imageUrl:
+        'https://images.hatchly.me/game-items/garden_salad/79574eab-8e0d-4816-b156-065e2b8acabe.png',
+    },
   ],
 } as const;
 

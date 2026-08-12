@@ -21,6 +21,8 @@ export function SiteFooter() {
         <span aria-hidden="true"> · </span>
         <a href="/#faq">FAQ</a>
         <span aria-hidden="true"> · </span>
+        <a href="/screenies">Screenies</a>
+        <span aria-hidden="true"> · </span>
         <a href="/llms.txt">llms.txt</a>
         <span aria-hidden="true"> · </span>
         <a href="https://discord.gg/ytvfBajAhh" target="_blank" rel="noopener noreferrer">

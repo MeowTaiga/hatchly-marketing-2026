@@ -12,6 +12,7 @@ import { BUGS, COOKING, CROPS, STICK_TOOLS } from './data/gameItems';
 import { SHOWCASE_PETS } from './data/showcasePets';
 import { BETA_DATE_LABEL, TAIGA } from './data/taiga';
 import { PrivacyPage } from './pages/Privacy';
+import { ScreeniesPage } from './pages/Screenies';
 import { Seo } from './seo/Seo';
 import {
   buildEventJsonLd,
@@ -79,10 +80,9 @@ function sidePos(size: number) {
 }
 
 export default function App() {
-  if (typeof window !== 'undefined' && window.location.pathname.startsWith('/privacy')) {
-    return <PrivacyPage />;
-  }
-
+  const path = typeof window !== 'undefined' ? window.location.pathname : '/';
+  if (path.startsWith('/privacy')) return <PrivacyPage />;
+  if (path.startsWith('/screenies')) return <ScreeniesPage />;
   return <HomePage />;
 }
 
@@ -423,9 +423,14 @@ function HomePage() {
           <img src="/hatchly-splash-logo.png" alt="Hatchly" width={40} height={40} />
           <span>Hatchly</span>
         </a>
-        <button type="button" className="nav-cta" onClick={scrollToSignup}>
-          <span>Join beta</span>
-        </button>
+        <div className="screenies-nav-actions">
+          <a className="btn-ghost screenies-nav-link" href="/screenies">
+            Screenies
+          </a>
+          <button type="button" className="nav-cta" onClick={scrollToSignup}>
+            <span>Join beta</span>
+          </button>
+        </div>
       </nav>
 
       <div className="wisp" ref={wispRef} aria-label={`${TAIGA.customName}, Hatchly mascot`}>
