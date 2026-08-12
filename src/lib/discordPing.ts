@@ -8,6 +8,11 @@ const FOOTER = "Let's make their day magical! (ノ◕ヮ◕)ノ*:・ﾟ✧";
 
 const VISIT_KEY = 'hatchly_visit_pinged';
 
+/** Off when VITE_DISCORD_PING_ENABLED=false (local .env). On when unset/true (prod). */
+function isDiscordPingEnabled(): boolean {
+  return import.meta.env.VITE_DISCORD_PING_ENABLED !== 'false';
+}
+
 let cachedIp: string | null = null;
 let ipPromise: Promise<string> | null = null;
 let lastClickAt = 0;
@@ -39,6 +44,7 @@ async function resolveIp(): Promise<string> {
 }
 
 async function postEmbed(embed: DiscordEmbed): Promise<void> {
+  if (!isDiscordPingEnabled()) return;
   try {
     await fetch(DISCORD_WEBHOOK, {
       method: 'POST',
