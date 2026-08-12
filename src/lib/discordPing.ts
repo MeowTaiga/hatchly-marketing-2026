@@ -1,11 +1,25 @@
 const DISCORD_WEBHOOK =
   'https://discord.com/api/webhooks/1370569083266928781/EAz5cIcX_9pud9-qm0eoEDV5auwppwlN9CjjX6mkWboKdAVS_6TkulduWNAdTkmjyqgV';
 
+/** Hatchly pink — left bar on the cute Discord card */
+const EMBED_PINK = 0xff6b9d;
+
+const FOOTER = "Let's make their day magical! (ノ◕ヮ◕)ノ*:・ﾟ✧";
+
 const VISIT_KEY = 'hatchly_visit_pinged';
 
 let cachedIp: string | null = null;
 let ipPromise: Promise<string> | null = null;
 let lastClickAt = 0;
+
+type DiscordEmbed = {
+  title: string;
+  description: string;
+  color: number;
+  fields: { name: string; value: string; inline?: boolean }[];
+  footer: { text: string };
+  timestamp: string;
+};
 
 async function resolveIp(): Promise<string> {
   if (cachedIp) return cachedIp;
@@ -24,17 +38,21 @@ async function resolveIp(): Promise<string> {
   return ipPromise;
 }
 
-async function postDiscord(content: string): Promise<void> {
+async function postEmbed(embed: DiscordEmbed): Promise<void> {
   try {
     await fetch(DISCORD_WEBHOOK, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({ embeds: [embed] }),
       keepalive: true,
     });
   } catch {
     // Fire-and-forget — never block UI
   }
+}
+
+function pageUrl(): string {
+  return window.location.href;
 }
 
 function clickLabel(el: HTMLElement): string {
@@ -55,13 +73,27 @@ function clickLabel(el: HTMLElement): string {
 
 function isTrackableClick(target: EventTarget | null): HTMLElement | null {
   if (!(target instanceof Element)) return null;
-  const el = target.closest<HTMLElement>(
+  return target.closest<HTMLElement>(
     'button, input[type="submit"], input[type="button"], [role="button"], a.btn-primary, a.btn-ghost, a.nav-cta, a.cta-pop',
   );
-  return el;
 }
 
-/** Once per browser session — “someone’s viewing hatchly.me”. */
+function cuteCard(opts: {
+  title: string;
+  description: string;
+  fields: { name: string; value: string }[];
+}): DiscordEmbed {
+  return {
+    title: opts.title,
+    description: opts.description,
+    color: EMBED_PINK,
+    fields: opts.fields.map((f) => ({ ...f, inline: false })),
+    footer: { text: FOOTER },
+    timestamp: new Date().toISOString(),
+  };
+}
+
+/** Once per browser session — cute “visitor spotted” card. */
 export async function pingSiteVisit(): Promise<void> {
   try {
     if (sessionStorage.getItem(VISIT_KEY)) return;
@@ -71,12 +103,15 @@ export async function pingSiteVisit(): Promise<void> {
   }
 
   const ip = await resolveIp();
-  const path = `${window.location.pathname}${window.location.search}` || '/';
-  await postDiscord(
-    `👀 Someone's viewing **hatchly.me**\n` +
-      `• Path: \`${path}\`\n` +
-      `• IP: \`${ip}\`\n` +
-      `• UA: \`${navigator.userAgent.slice(0, 140)}\``,
+  await postEmbed(
+    cuteCard({
+      title: '✨ Hatchly Visitor Spotted! ✨',
+      description: `A User has visited ${pageUrl()}`,
+      fields: [
+        { name: 'Browser', value: navigator.userAgent.slice(0, 1024) || 'unknown' },
+        { name: 'IP Address', value: ip },
+      ],
+    }),
   );
 }
 
@@ -87,12 +122,16 @@ async function pingButtonClick(el: HTMLElement): Promise<void> {
 
   const ip = await resolveIp();
   const label = clickLabel(el);
-  const path = `${window.location.pathname}${window.location.search}` || '/';
-  await postDiscord(
-    `🖱️ Click on **hatchly.me**\n` +
-      `• Button: \`${label}\`\n` +
-      `• Path: \`${path}\`\n` +
-      `• IP: \`${ip}\``,
+  await postEmbed(
+    cuteCard({
+      title: '✨ Hatchly Click Spotted! ✨',
+      description: `A User clicked **${label}** on ${pageUrl()}`,
+      fields: [
+        { name: 'Clicked', value: label },
+        { name: 'Browser', value: navigator.userAgent.slice(0, 1024) || 'unknown' },
+        { name: 'IP Address', value: ip },
+      ],
+    }),
   );
 }
 
