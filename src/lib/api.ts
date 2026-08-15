@@ -1,46 +1,55 @@
+/**
+ * Hatchly API base URL.
+ * - Local: VITE_API_URL or http://localhost:5000
+ * - Production build: VITE_API_URL or https://api.hatchly.me
+ */
+export function apiBase(): string {
+  const configured = import.meta.env.VITE_API_URL?.replace(/\/$/, '');
+  if (configured) return configured;
+  if (import.meta.env.DEV) return 'http://localhost:5000';
+  return 'https://api.hatchly.me';
+}
+
 type WaitlistResult =
   | { ok: true; alreadyJoined: boolean; message: string }
   | { ok: false; message: string };
 
 /**
- * Join the beta waitlist.
- * Prefers the 2026 API (`VITE_API_URL/waitlist`), falls back to legacy
- * `https://api.hatchly.me/api/waitlist` so signup works before the new API is deployed.
+ * Join the beta waitlist → POST /waitlist on hatchly-server-2026
+ * (persists to the `waitlists` collection).
  */
 export async function joinWaitlist(email: string): Promise<WaitlistResult> {
-  const configured = import.meta.env.VITE_API_URL?.replace(/\/$/, '');
-  const endpoints = configured
-    ? [`${configured}/waitlist`]
-    : ['https://api.hatchly.me/api/waitlist'];
+  const url = `${apiBase()}/waitlist`;
 
-  let lastError = 'Failed to join waitlist';
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, source: 'marketing-2026' }),
+    });
 
-  for (const url of endpoints) {
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, source: 'marketing-2026' }),
-      });
+    const payload = (await response.json().catch(() => null)) as
+      | {
+          success?: boolean;
+          data?: { message?: string; alreadyJoined?: boolean };
+          message?: string;
+          error?: string;
+        }
+      | null;
 
-      const payload = (await response.json().catch(() => null)) as
-        | { success?: boolean; data?: { message?: string; alreadyJoined?: boolean }; message?: string; error?: string }
-        | null;
-
-      if (!response.ok) {
-        lastError = payload?.error || payload?.message || lastError;
-        continue;
-      }
-
-      const message =
-        payload?.data?.message || payload?.message || 'Successfully joined the beta waitlist';
-      const alreadyJoined = Boolean(payload?.data?.alreadyJoined) || /already/i.test(message);
-
-      return { ok: true, alreadyJoined, message };
-    } catch {
-      lastError = 'Network error — please try again';
+    if (!response.ok) {
+      return {
+        ok: false,
+        message: payload?.error || payload?.message || 'Failed to join waitlist',
+      };
     }
-  }
 
-  return { ok: false, message: lastError };
+    const message =
+      payload?.data?.message || payload?.message || 'Successfully joined the beta waitlist';
+    const alreadyJoined = Boolean(payload?.data?.alreadyJoined) || /already/i.test(message);
+
+    return { ok: true, alreadyJoined, message };
+  } catch {
+    return { ok: false, message: 'Network error — please try again' };
+  }
 }

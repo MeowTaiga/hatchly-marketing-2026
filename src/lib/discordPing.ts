@@ -1,3 +1,5 @@
+import { apiBase } from './api';
+
 const VISIT_KEY = 'hatchly_visit_pinged';
 
 /** Off when VITE_DISCORD_PING_ENABLED=false (local .env). On when unset/true (prod). */
@@ -17,7 +19,7 @@ type PingPayload = {
 async function postPing(payload: PingPayload): Promise<void> {
   if (!isDiscordPingEnabled()) return;
   try {
-    await fetch('/api/ping', {
+    await fetch(`${apiBase()}/analytics/ping`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -55,7 +57,7 @@ function isTrackableClick(target: EventTarget | null): HTMLElement | null {
   );
 }
 
-/** Once per browser session — cute “visitor spotted” card. */
+/** Once per browser session — cute “visitor spotted” card via API. */
 export async function pingSiteVisit(): Promise<void> {
   try {
     if (sessionStorage.getItem(VISIT_KEY)) return;
